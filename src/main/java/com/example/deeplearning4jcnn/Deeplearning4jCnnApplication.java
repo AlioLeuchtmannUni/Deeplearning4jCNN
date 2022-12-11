@@ -16,6 +16,7 @@ import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -33,10 +34,15 @@ public class Deeplearning4jCnnApplication {
     public Deeplearning4jCnnApplication() throws IOException {
     }
 
+
+    static final WeightInit weightInit = WeightInit.XAVIER_UNIFORM;
+    static final LossFunctions.LossFunction lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
+
+    static final OptimizationAlgorithm optimizationAlgorithm = OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT;
     static DataSetIterator mnistTrain;
     static DataSetIterator mnistTest;
-    static int batchSize = 64;
-    static int nEpochs = 20;
+    static final int batchSize = 64;
+    static final int nEpochs = 3;
 
 
     static Adam getOptimizer() {
@@ -54,6 +60,7 @@ public class Deeplearning4jCnnApplication {
         adam.setBeta1(0.9f);
         adam.setBeta2(0.999f);
         adam.setEpsilon(1e-7f);
+        //adam.applySchedules();
         return adam;
     }
 
@@ -61,7 +68,7 @@ public class Deeplearning4jCnnApplication {
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .optimizationAlgo(optimizationAlgorithm)
                 //.regularization(true)
                 .learningRate(0.001)
                 .updater(createAdam())
@@ -72,7 +79,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(24)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(1,
@@ -86,9 +93,9 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(256)
                                 .build())
                 .layer(3,
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                        new OutputLayer.Builder(lossFunction)
                                 .activation(Activation.SOFTMAX)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
                 .pretrain(false)
@@ -104,7 +111,7 @@ public class Deeplearning4jCnnApplication {
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .optimizationAlgo(optimizationAlgorithm)
                 //.regularization(true)
                 .learningRate(0.001)
                 .updater(createAdam())
@@ -114,7 +121,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(24)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(1,
@@ -127,7 +134,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(48)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(3,
@@ -141,9 +148,9 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(256)
                                 .build())
                 .layer(5,
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                        new OutputLayer.Builder(lossFunction)
                                 .activation(Activation.SOFTMAX)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
                 .pretrain(false)
@@ -158,7 +165,7 @@ public class Deeplearning4jCnnApplication {
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .optimizationAlgo(optimizationAlgorithm)
                 //.regularization(true)
                 .learningRate(0.001)
                 .updater(createAdam())
@@ -169,7 +176,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(24)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(1,
@@ -182,7 +189,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(48)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(3,
@@ -195,7 +202,7 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(64)
                                 .stride(1, 1)
                                 .padding(1, 1)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .activation(Activation.RELU)
                                 .build())
                 .layer(5,
@@ -209,9 +216,9 @@ public class Deeplearning4jCnnApplication {
                                 .nOut(256)
                                 .build())
                 .layer(7,
-                        new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                        new OutputLayer.Builder(lossFunction)
                                 .activation(Activation.SOFTMAX)
-                                .weightInit(WeightInit.XAVIER_UNIFORM)
+                                .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
                 .pretrain(false)
@@ -225,11 +232,14 @@ public class Deeplearning4jCnnApplication {
     public static void main(String[] args) throws IOException {
         SpringApplication.run(Deeplearning4jCnnApplication.class, args);
 
+        Nd4j.getMemoryManager().setAutoGcWindow(5000);
+
         MnistDataset mnistDataset = new MnistDataset(); //initialisierung statischer Variablen
         mnistTrain = MnistDataset.getTrainDataset();
         mnistTest = MnistDataset.getTestDataset();
 
-        //trainAndEvalModel(createModel1());
+
+        trainAndEvalModel(createModel1());
         trainAndEvalModel(createModel2());
         trainAndEvalModel(createModel3());
 
@@ -241,7 +251,6 @@ public class Deeplearning4jCnnApplication {
         network.init();
 
         network.setListeners(new ScoreIterationListener(100));
-
 
 
         for(int i=0; i < nEpochs; i++){
@@ -258,7 +267,15 @@ public class Deeplearning4jCnnApplication {
         }
 
 
+        network.conf().clearVariables();
         network.clear();
+        network.clearLayerMaskArrays();
+        mnistTest.reset();
+        mnistTrain.reset();
+        System.out.println("Current Wrokspace size: " + Nd4j.getMemoryManager().getCurrentWorkspace().getCurrentSize());
+        Nd4j.getMemoryManager().invokeGc();
+        Nd4j.getMemoryManager().getCurrentWorkspace().close();
+
         System.out.println(eval.accuracy());
     }
 
