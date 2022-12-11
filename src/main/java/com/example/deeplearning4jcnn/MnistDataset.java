@@ -39,7 +39,7 @@ public class MnistDataset {
     private static final int batchSize = 100; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
     private static final int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
 
-    public static String dataLocalPath = "./src/main/resources/trainingSet/";
+    public static String dataLocalPath = "./src/main/resources/";
 
     private static InputSplit trainData;
     private static InputSplit testData;

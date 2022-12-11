@@ -36,7 +36,7 @@ public class Deeplearning4jCnnApplication {
     static DataSetIterator mnistTrain;
     static DataSetIterator mnistTest;
     static int batchSize = 64;
-    static int nEpochs = 10;
+    static int nEpochs = 20;
 
 
     static Adam getOptimizer() {
@@ -48,17 +48,23 @@ public class Deeplearning4jCnnApplication {
         return adam;
     }
 
-    static MultiLayerNetwork createModel1(){
-
+    static Adam createAdam() {
         Adam adam = new Adam();
         adam.setLearningRate(1e-3);
+        adam.setBeta1(0.9f);
+        adam.setBeta2(0.999f);
+        adam.setEpsilon(1e-7f);
+        return adam;
+    }
+
+    static MultiLayerNetwork createModel1(){
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 //.regularization(true)
                 .learningRate(0.001)
-                .updater(adam)
+                .updater(createAdam())
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -96,15 +102,12 @@ public class Deeplearning4jCnnApplication {
 
     static MultiLayerNetwork createModel2(){
 
-        Adam adam = new Adam();
-        adam.setLearningRate(1e-3);
-
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 //.regularization(true)
                 .learningRate(0.001)
-                .updater(adam)
+                .updater(createAdam())
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -153,15 +156,12 @@ public class Deeplearning4jCnnApplication {
 
     static MultiLayerNetwork createModel3(){
 
-        Adam adam = new Adam();
-        adam.setLearningRate(1e-3);
-
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 //.regularization(true)
                 .learningRate(0.001)
-                .updater(adam)
+                .updater(createAdam())
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -225,12 +225,11 @@ public class Deeplearning4jCnnApplication {
     public static void main(String[] args) throws IOException {
         SpringApplication.run(Deeplearning4jCnnApplication.class, args);
 
-        MnistDataset mnistDataset = new MnistDataset();
+        MnistDataset mnistDataset = new MnistDataset(); //initialisierung statischer Variablen
         mnistTrain = MnistDataset.getTrainDataset();
         mnistTest = MnistDataset.getTestDataset();
 
-
-        trainAndEvalModel(createModel1());
+        //trainAndEvalModel(createModel1());
         trainAndEvalModel(createModel2());
         trainAndEvalModel(createModel3());
 
@@ -242,6 +241,8 @@ public class Deeplearning4jCnnApplication {
         network.init();
 
         network.setListeners(new ScoreIterationListener(100));
+
+
 
         for(int i=0; i < nEpochs; i++){
             System.out.println("Process Epoch "+(i+1)+" ...");
@@ -256,6 +257,8 @@ public class Deeplearning4jCnnApplication {
             eval.eval(next.getLabels(), output); //check the prediction against the true class
         }
 
+
+        network.clear();
         System.out.println(eval.accuracy());
     }
 

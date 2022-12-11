@@ -187,3 +187,85 @@ Cannot do forward pass in Convolution layer
                                 .nOut(10)
                                 .build())
 
+
+### GPU erkennung nicht automatisch erfolgt
+
+Probiere:
+
+        <!-- https://www.oreilly.com/library/view/deep-learning/9781491924570/app09.html    GPU Support
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-7.5-platform</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        -->
+--> Kein Erfolg
+
+Probiere:
+https://subscription.packtpub.com/book/data/9781788995207/1/ch01lvl1sec09/configuring-dl4j-for-a-gpu-accelerated-environment
+
+Schritte aus Link:
+
+1. Download and install CUDA v9.2+ from the NVIDIA developer website URL: https://developer.nvidia.com/cuda-downloads.
+2. Configure the CUDA dependencies. For Linux, go to a Terminal and edit the .bashrc file. Run the following commands and make sure you replace username and the CUDA version number as per your downloaded version:
+``` bash 
+
+export PATH=/usr/local/cuda-9.2/bin${PATH:+:${PATH}}$
+export LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+source .bashrc
+```
+3. Add the lib64 directory to PATH for older DL4J versions.
+4. Run the nvcc --version command to verify the CUDA installation.
+5. Add Maven dependencies for the ND4J CUDA backend:
+
+-->
+
+An NVIDIA kernel module 'nvidia-drm' appears to already be loaded in your kernel.  
+This may be because it is in use (for example, by an X server, a CUDA program, or the NVIDIA Persistence Daemon), 
+but this may also happen if your kernel was configured without support for module unloading.  
+Please be sure to exit any programs that may be using the GPU(s) before attempting to upgrade your driver. 
+If no GPU-based programs are running, you know that your kernel supports module unloading, and you still receive this message,
+then an error may have occurred that has corrupted an NVIDIA kernel module's usage count, for which the simplest remedy is to reboot your computer.
+
+
+### Insufficient Memory:
+
+Exception in thread "restartedMain" java.lang.reflect.InvocationTargetException
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:49)
+Caused by: java.lang.OutOfMemoryError: Cannot allocate new FloatPointer(1622400): totalBytes = 93M, physicalBytes = 15G
+at org.bytedeco.javacpp.FloatPointer.<init>(FloatPointer.java:76)
+at org.nd4j.linalg.api.buffer.BaseDataBuffer.<init>(BaseDataBuffer.java:541)
+at org.nd4j.linalg.api.buffer.FloatBuffer.<init>(FloatBuffer.java:61)
+at org.nd4j.linalg.api.buffer.factory.DefaultDataBufferFactory.createFloat(DefaultDataBufferFactory.java:255)
+at org.nd4j.linalg.factory.Nd4j.createBuffer(Nd4j.java:1468)
+at org.nd4j.linalg.factory.Nd4j.createBuffer(Nd4j.java:1442)
+at org.nd4j.linalg.api.ndarray.BaseNDArray.<init>(BaseNDArray.java:247)
+at org.nd4j.linalg.cpu.nativecpu.NDArray.<init>(NDArray.java:109)
+at org.nd4j.linalg.cpu.nativecpu.CpuNDArrayFactory.create(CpuNDArrayFactory.java:262)
+at org.nd4j.linalg.factory.Nd4j.create(Nd4j.java:5014)
+at org.deeplearning4j.nn.layers.convolution.subsampling.SubsamplingLayer.backpropGradient(SubsamplingLayer.java:170)
+at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.calcBackpropGradients(MultiLayerNetwork.java:1359)
+at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.backprop(MultiLayerNetwork.java:1273)
+at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.computeGradientAndScore(MultiLayerNetwork.java:2237)
+at org.deeplearning4j.optimize.solvers.BaseOptimizer.gradientAndScore(BaseOptimizer.java:174)
+at org.deeplearning4j.optimize.solvers.StochasticGradientDescent.optimize(StochasticGradientDescent.java:60)
+at org.deeplearning4j.optimize.Solver.optimize(Solver.java:53)
+at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.fit(MultiLayerNetwork.java:1245)
+at com.example.deeplearning4jcnn.Deeplearning4jCnnApplication.trainAndEvalModel(Deeplearning4jCnnApplication.java:248)
+at com.example.deeplearning4jcnn.Deeplearning4jCnnApplication.main(Deeplearning4jCnnApplication.java:234)
+... 5 more
+Caused by: java.lang.OutOfMemoryError: Physical memory usage is too high: physicalBytes = 15G > maxPhysicalBytes = 15G
+at org.bytedeco.javacpp.Pointer.deallocator(Pointer.java:576)
+at org.bytedeco.javacpp.Pointer.init(Pointer.java:121)
+at org.bytedeco.javacpp.FloatPointer.allocateArray(Native Method)
+at org.bytedeco.javacpp.FloatPointer.<init>(FloatPointer.java:68)
+... 24 more
+
+
+
+--> Probiere  network.clear(); nach evaluation -- kein fix 
