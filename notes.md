@@ -284,3 +284,5 @@ Nd4j.getMemoryManager().invokeGc();
 
 
 https://deeplearning4j.konduit.ai/multi-project/explanation/configuration/memory/workspaces#workspace-destruction
+
+--> FIX Workspaces nutzen und diese manuell zerstören

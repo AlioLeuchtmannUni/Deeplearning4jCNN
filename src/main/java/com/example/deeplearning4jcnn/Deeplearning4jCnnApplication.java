@@ -4,30 +4,28 @@ import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator;
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
-import org.deeplearning4j.nn.conf.LearningRatePolicy;
+import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
-import org.deeplearning4j.nn.modelimport.keras.layers.KerasFlatten;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.api.InvocationType;
-import org.deeplearning4j.optimize.listeners.EvaluativeListener;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.api.memory.conf.WorkspaceConfiguration;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.schedule.MapSchedule;
+import org.nd4j.linalg.schedule.ScheduleType;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 public class Deeplearning4jCnnApplication {
@@ -37,8 +35,9 @@ public class Deeplearning4jCnnApplication {
 
 
     static final WeightInit weightInit = WeightInit.XAVIER_UNIFORM;
+    // https://towardsdatascience.com/cross-entropy-negative-log-likelihood-and-all-that-jazz-47a95bd2e81#:~:text=Negative%20log%2Dlikelihood%20minimization%20is,up%20the%20correct%20log%20probabilities.%E2%80%9D
+    // use next best available
     static final LossFunctions.LossFunction lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
-
     static final OptimizationAlgorithm optimizationAlgorithm = OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT;
     static DataSetIterator mnistTrain;
     static DataSetIterator mnistTest;
@@ -46,22 +45,28 @@ public class Deeplearning4jCnnApplication {
     static final int nEpochs = 20;
 
 
-    static Adam getOptimizer() {
 
-        Adam adam = new Adam();
-        adam.setLearningRate(1e-3);
-        adam.applySchedules(1,1);
+    //  <artifactId>nd4j-api</artifactId> import nötig
+    // https://github.com/deeplearning4j/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/LeNetMNISTReLu.java#L116-L128
+    // https://deeplearning4j.konduit.ai/deeplearning4j/reference/updaters-optimizers
+    static Adam createAdam(double factor) {
 
-        return adam;
-    }
-
-    static Adam createAdam() {
+        double startLEarningRate = 1e-3;
         Adam adam = new Adam();
         adam.setLearningRate(1e-3);
         adam.setBeta1(0.9f);
         adam.setBeta2(0.999f);
         adam.setEpsilon(1e-7f);
-        //adam.applySchedules();
+
+        Map<Integer, Double> learningRateSchedule = new HashMap<>();
+
+        for(int epoch = 0; epoch < nEpochs ; epoch++){
+            double newLearningRate = startLEarningRate * Math.pow(factor,epoch);
+            learningRateSchedule.put(epoch,newLearningRate);
+        }
+
+
+        //adam.setLearningRateSchedule(new MapSchedule(ScheduleType.EPOCH, learningRateSchedule));
         return adam;
     }
 
@@ -70,9 +75,7 @@ public class Deeplearning4jCnnApplication {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(optimizationAlgorithm)
-                //.regularization(true)
-                .learningRate(0.001)
-                .updater(createAdam())
+                .updater(createAdam(0.95))
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -99,8 +102,7 @@ public class Deeplearning4jCnnApplication {
                                 .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
-                .pretrain(false)
-                .backprop(true)
+                .backpropType(BackpropType.Standard)
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
         configuration.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
@@ -113,9 +115,7 @@ public class Deeplearning4jCnnApplication {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(optimizationAlgorithm)
-                //.regularization(true)
-                .learningRate(0.001)
-                .updater(createAdam())
+                .updater(createAdam(0.95))
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -154,8 +154,7 @@ public class Deeplearning4jCnnApplication {
                                 .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
-                .pretrain(false)
-                .backprop(true)
+                .backpropType(BackpropType.Standard)
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
 
@@ -169,9 +168,7 @@ public class Deeplearning4jCnnApplication {
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
                 .seed(1611)
                 .optimizationAlgo(optimizationAlgorithm)
-                //.regularization(true)
-                .learningRate(0.001)
-                .updater(createAdam())
+                .updater(createAdam(0.95))
                 .list()
                 .layer(0,
                         new ConvolutionLayer.Builder(5, 5)
@@ -224,8 +221,7 @@ public class Deeplearning4jCnnApplication {
                                 .weightInit(weightInit)
                                 .nOut(10)
                                 .build())
-                .pretrain(false)
-                .backprop(true)
+                .backpropType(BackpropType.Standard)
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
 
@@ -242,7 +238,6 @@ public class Deeplearning4jCnnApplication {
         MnistDataset mnistDataset = new MnistDataset(batchSize); //initialisierung statischer Variablen
         mnistTrain = MnistDataset.getTrainDataset();
         mnistTest = MnistDataset.getTestDataset();
-
 
         trainAndEvalModel(createModel1());
         trainAndEvalModel(createModel2());
@@ -264,18 +259,19 @@ public class Deeplearning4jCnnApplication {
             Evaluation eval = new Evaluation(10);
             network.doEvaluation(mnistTest,eval);
             System.out.println("Accuracy for previous Epoch: " + eval.accuracy());
+
         }
 
         Evaluation eval = new Evaluation(10);
         network.doEvaluation(mnistTest,eval);
 
-        System.out.println("Evalutation Acuracy: " + eval.accuracy());
-        System.out.println("Stats: " + eval.stats());
+        System.out.println(" \n Final Accuracy: " + eval.accuracy() + "");
+        // uncomment for extended Information
+        //System.out.println("Stats: " + eval.stats() + " \n");
 
         System.out.println("Workspace size after Training and Evaluation: " + Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread().getCurrentSize());
         Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
     }
-
 
 
 

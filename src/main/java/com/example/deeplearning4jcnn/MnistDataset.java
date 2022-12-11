@@ -41,6 +41,9 @@ public class MnistDataset {
 
     public static String dataLocalPath = "./src/main/resources/";
 
+    public static int trainingSetSize;
+    public static int testSetSize;
+
     private static InputSplit trainData;
     private static InputSplit testData;
 
@@ -73,6 +76,7 @@ public class MnistDataset {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
         recordReader.initialize(trainData);
         int outputNum = recordReader.numLabels();
+        trainingSetSize = outputNum;
         System.out.println("initialized Training set, "+outputNum+" Labels");
         return new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
     }
@@ -82,6 +86,7 @@ public class MnistDataset {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
         recordReader.initialize(testData);
         int outputNum = recordReader.numLabels();
+        testSetSize = outputNum;
         System.out.println("initialized Test set, "+outputNum+" Labels");
         return new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
     }
