@@ -7,6 +7,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.LearningRatePolicy;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.WorkspaceMode;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.modelimport.keras.layers.KerasFlatten;
@@ -42,7 +43,7 @@ public class Deeplearning4jCnnApplication {
     static DataSetIterator mnistTrain;
     static DataSetIterator mnistTest;
     static final int batchSize = 64;
-    static final int nEpochs = 3;
+    static final int nEpochs = 20;
 
 
     static Adam getOptimizer() {
@@ -102,8 +103,8 @@ public class Deeplearning4jCnnApplication {
                 .backprop(true)
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
-
-
+        configuration.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        configuration.setInferenceWorkspaceMode(WorkspaceMode.SINGLE);
         return new MultiLayerNetwork(configuration);
     }
 
@@ -158,6 +159,8 @@ public class Deeplearning4jCnnApplication {
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
 
+        configuration.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        configuration.setInferenceWorkspaceMode(WorkspaceMode.SINGLE);
         return new MultiLayerNetwork(configuration);
     }
 
@@ -226,6 +229,8 @@ public class Deeplearning4jCnnApplication {
                 .setInputType(InputType.convolutional(28,28,1))
                 .build();
 
+        configuration.setTrainingWorkspaceMode(WorkspaceMode.SEPARATE);
+        configuration.setInferenceWorkspaceMode(WorkspaceMode.SINGLE);
         return new MultiLayerNetwork(configuration);
     }
 
@@ -234,7 +239,7 @@ public class Deeplearning4jCnnApplication {
 
         Nd4j.getMemoryManager().setAutoGcWindow(5000);
 
-        MnistDataset mnistDataset = new MnistDataset(); //initialisierung statischer Variablen
+        MnistDataset mnistDataset = new MnistDataset(batchSize); //initialisierung statischer Variablen
         mnistTrain = MnistDataset.getTrainDataset();
         mnistTest = MnistDataset.getTestDataset();
 
@@ -248,35 +253,27 @@ public class Deeplearning4jCnnApplication {
 
     static void trainAndEvalModel(MultiLayerNetwork network){
 
+        System.out.println("Workspace size before Network init: " + Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread().getCurrentSize());
         network.init();
 
-        network.setListeners(new ScoreIterationListener(100));
 
-
-        for(int i=0; i < nEpochs; i++){
+        for(int i = 0; i < nEpochs; i++){
             System.out.println("Process Epoch "+(i+1)+" ...");
             network.fit(mnistTrain);
+
+            Evaluation eval = new Evaluation(10);
+            network.doEvaluation(mnistTest,eval);
+            System.out.println("Accuracy for previous Epoch: " + eval.accuracy());
         }
 
         Evaluation eval = new Evaluation(10);
+        network.doEvaluation(mnistTest,eval);
 
-        while(mnistTest.hasNext()){
-            DataSet next = mnistTest.next();
-            INDArray output = network.output(next.getFeatureMatrix()); //get the networks prediction
-            eval.eval(next.getLabels(), output); //check the prediction against the true class
-        }
+        System.out.println("Evalutation Acuracy: " + eval.accuracy());
+        System.out.println("Stats: " + eval.stats());
 
-
-        network.conf().clearVariables();
-        network.clear();
-        network.clearLayerMaskArrays();
-        mnistTest.reset();
-        mnistTrain.reset();
-        System.out.println("Current Wrokspace size: " + Nd4j.getMemoryManager().getCurrentWorkspace().getCurrentSize());
-        Nd4j.getMemoryManager().invokeGc();
-        Nd4j.getMemoryManager().getCurrentWorkspace().close();
-
-        System.out.println(eval.accuracy());
+        System.out.println("Workspace size after Training and Evaluation: " + Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread().getCurrentSize());
+        Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
     }
 
 

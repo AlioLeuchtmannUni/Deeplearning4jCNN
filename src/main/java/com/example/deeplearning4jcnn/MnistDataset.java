@@ -36,7 +36,7 @@ public class MnistDataset {
     private static final int width = 28;
     private static final int channels = 1;
 
-    private static final int batchSize = 100; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
+    private static int batchSize; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
     private static final int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
 
     public static String dataLocalPath = "./src/main/resources/";
@@ -49,8 +49,11 @@ public class MnistDataset {
 
     // 1. Download https://www.kaggle.com/datasets/scolianni/mnistasjpg
     // 2. Extract Files
-    // 3. put Folder trainingSet and testSet in Resources Folder
-    MnistDataset(){
+    // 3. put Folder trainingSet in Resources Folder
+    MnistDataset(int batchSize){
+
+        MnistDataset.batchSize = batchSize;
+
         File parentDir = new File(dataLocalPath,"trainingSet/");
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
         labelMaker = new ParentPathLabelGenerator();
@@ -62,7 +65,7 @@ public class MnistDataset {
 
         trainData = filesInDirSplit[0];
         testData = filesInDirSplit[1];
-        System.out.println("data splitted");
+        System.out.println("data split");
     }
 
     public static DataSetIterator getTrainDataset() throws IOException {
@@ -70,7 +73,7 @@ public class MnistDataset {
         ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
         recordReader.initialize(trainData);
         int outputNum = recordReader.numLabels();
-        System.out.println("initialized Trainin set, "+outputNum+" Labels");
+        System.out.println("initialized Training set, "+outputNum+" Labels");
         return new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
     }
 

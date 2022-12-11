@@ -268,4 +268,19 @@ at org.bytedeco.javacpp.FloatPointer.<init>(FloatPointer.java:68)
 
 
 
---> Probiere  network.clear(); nach evaluation -- kein fix 
+--> Probiere  network.clear(); nach evaluation --> kein fix 
+
+--> Probiere
+network.conf().clearVariables();
+network.clear();
+network.clearLayerMaskArrays();
+mnistTest.reset();
+mnistTrain.reset();
+//System.out.println("Current Wrokspace size: " + Nd4j.getMemoryManager().getCurrentWorkspace().getCurrentSize());
+//Nd4j.getMemoryManager().getCurrentWorkspace().close();
+Nd4j.getMemoryManager().invokeGc();
+
+--> kein fix
+
+
+https://deeplearning4j.konduit.ai/multi-project/explanation/configuration/memory/workspaces#workspace-destruction
