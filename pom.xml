@@ -36,11 +36,22 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- CPU -->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
+        <!-- -->
+
+        <!-- GPU
+        requires: Cuda compatible GPU, CUDA and CuDNN
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-11.4-platform</artifactId>
+            <version>1.0.0-M2.1</version>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>org.nd4j</groupId>

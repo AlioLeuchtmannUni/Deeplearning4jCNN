@@ -229,6 +229,14 @@ If no GPU-based programs are running, you know that your kernel supports module 
 then an error may have occurred that has corrupted an NVIDIA kernel module's usage count, for which the simplest remedy is to reboot your computer.
 
 
+
+install new driver : https://www.nvidia.com/content/DriverDownloads/confirmation.php?url=/XFree86/Linux-x86_64/525.60.11/NVIDIA-Linux-x86_64-525.60.11.run&lang=us&type=TITAN
+sudo sh NVIDIA-Linux-x86_64-525.60.11.run
+
+wget http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda_11.0.2_450.51.05_linux.run
+sudo sh cuda_11.0.2_450.51.05_linux.run
+
+
 ### Insufficient Memory:
 
 Exception in thread "restartedMain" java.lang.reflect.InvocationTargetException
@@ -286,3 +294,37 @@ Nd4j.getMemoryManager().invokeGc();
 https://deeplearning4j.konduit.ai/multi-project/explanation/configuration/memory/workspaces#workspace-destruction
 
 --> FIX Workspaces nutzen und diese manuell zerstören
+
+
+### Performance:
+
+Architektur:                       x86_64
+CPU Operationsmodus:             32-bit, 64-bit
+Adressgrößen:                    39 bits physical, 48 bits virtual
+Byte-Reihenfolge:                Little Endian
+CPU(s):                            16
+Liste der Online-CPU(s):         0-15
+Anbieterkennung:                   GenuineIntel
+Modellname:                      Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz
+Prozessorfamilie:              6
+Modell:                        158
+Thread(s) pro Kern:            2
+Kern(e) pro Sockel:            8
+Sockel:                        1
+Stepping:                      12
+Maximale Taktfrequenz der CPU: 5000,0000
+Minimale Taktfrequenz der CPU: 800,0000
+BogoMIPS:                      7200.00
+Virtualisierungsfunktionen:
+Virtualisierung:                 VT-x
+Caches (Gesamtsumme):
+L1d:                             256 KiB (8 Instanzen)
+L1i:                             256 KiB (8 Instanzen)
+L2:                              2 MiB (8 Instanzen)
+L3:                              16 MiB (1 Instanz)
+NUMA:
+NUMA-Knoten:                     1
+NUMA-Knoten0 CPU(s):             0-15
+
+--> alle 3 Modelle erstellen trainieren und validiern:
+
