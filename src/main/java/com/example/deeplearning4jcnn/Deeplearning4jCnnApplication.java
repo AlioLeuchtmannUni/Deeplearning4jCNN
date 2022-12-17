@@ -32,14 +32,9 @@ import java.util.Map;
 @SpringBootApplication
 public class Deeplearning4jCnnApplication {
 
-    public Deeplearning4jCnnApplication() throws IOException {
-    }
-
-
+    public Deeplearning4jCnnApplication() throws IOException {}
     static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static final WeightInit weightInit = WeightInit.XAVIER_UNIFORM;
-    // https://towardsdatascience.com/cross-entropy-negative-log-likelihood-and-all-that-jazz-47a95bd2e81#:~:text=Negative%20log%2Dlikelihood%20minimization%20is,up%20the%20correct%20log%20probabilities.%E2%80%9D
-    // use next best available:
     static final LossFunctions.LossFunction lossFunction = LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD;
     static final OptimizationAlgorithm optimizationAlgorithm = OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT;
     static DataSetIterator mnistTrain;
@@ -47,8 +42,13 @@ public class Deeplearning4jCnnApplication {
     static final int batchSize = 64;
     static final int nEpochs = 20;
 
-    // https://github.com/deeplearning4j/deeplearning4j-examples/blob/master/dl4j-examples/src/main/java/org/deeplearning4j/examples/quickstart/modeling/convolution/LeNetMNISTReLu.java#L116-L128
-    // https://deeplearning4j.konduit.ai/deeplearning4j/reference/updaters-optimizers
+
+    /**
+     * Creating {@link Adam} Optimizer with LearnRate Sheduler, updating Learnrate every epoch with: newLearnRate = learnRate * Math.pow(factor,epoch)
+     * @param learnRate LearnRate
+     * @param factor Factor to update Learnrate with: newLeearnRate = learnRate * Math.pow(factor,epoch)
+     * @return {@link Adam}
+     */
     static Adam createAdam(double learnRate,double factor) {
 
         Adam adam = new Adam();
@@ -67,6 +67,15 @@ public class Deeplearning4jCnnApplication {
         return adam;
     }
 
+    /**
+     * <pre>
+     * Create Model: 784 - [24C5-P2] - 256 - 10
+     * using {@link Deeplearning4jCnnApplication#optimizationAlgorithm}
+     * using {@link Deeplearning4jCnnApplication#weightInit}
+     * using {@link Deeplearning4jCnnApplication#lossFunction}
+     * </pre>
+     * @return {@link MultiLayerNetwork} created Network
+     */
     static MultiLayerNetwork createModel1(){
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
@@ -108,6 +117,15 @@ public class Deeplearning4jCnnApplication {
         return new MultiLayerNetwork(configuration);
     }
 
+    /**
+     * <pre>
+     * Create Model: 784 - [24C5-P2] - [48C5-P2] - 256 - 10
+     * using {@link Deeplearning4jCnnApplication#optimizationAlgorithm}
+     * using {@link Deeplearning4jCnnApplication#weightInit}
+     * using {@link Deeplearning4jCnnApplication#lossFunction}
+     * </pre>
+     * @return {@link MultiLayerNetwork} created Network
+     */
     static MultiLayerNetwork createModel2(){
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
@@ -161,6 +179,15 @@ public class Deeplearning4jCnnApplication {
         return new MultiLayerNetwork(configuration);
     }
 
+    /**
+     * <pre>
+     * Create Model: 784 - [24C5-P2] - [48C5-P2] - [64C5-P2] - 256 - 10
+     * using {@link Deeplearning4jCnnApplication#optimizationAlgorithm}
+     * using {@link Deeplearning4jCnnApplication#weightInit}
+     * using {@link Deeplearning4jCnnApplication#lossFunction}
+     * </pre>
+     * @return {@link MultiLayerNetwork} created Network
+     */
     static MultiLayerNetwork createModel3(){
 
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
@@ -234,9 +261,9 @@ public class Deeplearning4jCnnApplication {
         logger.info("Start");
         Nd4j.getMemoryManager().setAutoGcWindow(5000);
 
-        MnistDataset mnistDataset = new MnistDataset(batchSize); //initialisierung statischer Variablen
-        mnistTrain = MnistDataset.getTrainDataset();
-        mnistTest = MnistDataset.getTestDataset();
+        MnistDataset mnistDataset = new MnistDataset(batchSize);
+        mnistTrain = mnistDataset.getTrainDataset();
+        mnistTest = mnistDataset.getTestDataset();
 
         trainAndEvalModel(createModel1());
         trainAndEvalModel(createModel2());
@@ -246,31 +273,30 @@ public class Deeplearning4jCnnApplication {
     }
 
 
+    /**
+     * <pre>
+     *     Initializing Network Training for  {@link Deeplearning4jCnnApplication#nEpochs} and printing evaluation for every Epoch.
+     * </pre>
+     * @param network {@link MultiLayerNetwork} Network to Train and Evaluate
+     */
     static void trainAndEvalModel(MultiLayerNetwork network){
 
-        System.out.println("Workspace size before Network init: " + Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread().getCurrentSize());
         network.init();
 
-
         for(int i = 0; i < nEpochs; i++){
-            System.out.println("Process Epoch "+(i+1)+" ...");
+            logger.info("Process Epoch "+(i+1)+" ...");
             network.fit(mnistTrain);
 
             Evaluation eval = new Evaluation(10);
             network.doEvaluation(mnistTest,eval);
-            System.out.println("Accuracy for previous Epoch: " + eval.accuracy());
+            logger.info("Accuracy for previous Epoch: " + eval.accuracy());
 
         }
-
 
         Evaluation eval = new Evaluation(10);
         network.doEvaluation(mnistTest,eval);
 
-        System.out.println(" \n Final Accuracy: " + eval.accuracy() + "");
-        // uncomment for extended Information
-        // System.out.println("Stats: " + eval.stats() + " \n");
-
-        System.out.println("Workspace size after Training and Evaluation: " + Nd4j.getWorkspaceManager().getWorkspaceForCurrentThread().getCurrentSize());
+        logger.info(" \n Final Accuracy: " + eval.accuracy() + "");
         Nd4j.getWorkspaceManager().destroyAllWorkspacesForCurrentThread();
     }
 

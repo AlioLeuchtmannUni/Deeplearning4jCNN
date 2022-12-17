@@ -16,79 +16,79 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-/*
-CSV Mit Format:
-
-label,pixel,...,pixel\n
-
-* */
-
 public class MnistDataset {
 
-    //Images are of format given by allowedExtension -
-    private static final String [] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
+    private final int height = 28;
+    private final int width = 28;
+    private final int channels = 1;
+    private final int batchSize; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
+    private final int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
+    public int trainingSetSize;
+    public int testSetSize;
+    private final InputSplit trainData;
+    private final InputSplit testData;
+    private final ParentPathLabelGenerator labelMaker;
 
-    private static final long seed = 123;
-
-    private static final Random randNumGen = new Random(seed);
-
-    private static final int height = 28;
-    private static final int width = 28;
-    private static final int channels = 1;
-
-    private static int batchSize; // Minibatch size. Here: The number of images to fetch for each call to dataIter.next().
-    private static final int labelIndex = 1; // Index of the label Writable (usually an IntWritable), as obtained by recordReader.next()
-
-    public static String dataLocalPath = "./src/main/resources/";
-
-    public static int trainingSetSize;
-    public static int testSetSize;
-
-    private static InputSplit trainData;
-    private static InputSplit testData;
-
-    private static ParentPathLabelGenerator labelMaker;
-
-
-    // 1. Download https://www.kaggle.com/datasets/scolianni/mnistasjpg
-    // 2. Extract Files
-    // 3. put Folder trainingSet in Resources Folder
+    /**
+     * <pre>
+     * Requirements for mnist Example:
+     *     // 1. Download https://www.kaggle.com/datasets/scolianni/mnistasjpg
+     *     // 2. Extract Files
+     *     // 3. put Folder trainingSet in Resources Folder
+     *
+     * Using
+     * </pre>
+     * @param batchSize BatchSize
+     */
     MnistDataset(int batchSize){
 
-        MnistDataset.batchSize = batchSize;
+        this.batchSize = batchSize;
 
+        String dataLocalPath = "./src/main/resources/";
         File parentDir = new File(dataLocalPath,"trainingSet/");
+        //Images are of format given by allowedExtension -
+        String[] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
+        long seed = 123;
+        Random randNumGen = new Random(seed);
         FileSplit filesInDir = new FileSplit(parentDir, allowedExtensions, randNumGen);
-        labelMaker = new ParentPathLabelGenerator();
-        BalancedPathFilter pathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker);
+        this.labelMaker = new ParentPathLabelGenerator();
+        BalancedPathFilter pathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, this.labelMaker);
 
         //Split the image files into train and test. Specify the train test split as 80%,20%
         InputSplit[] filesInDirSplit = filesInDir.sample(pathFilter, 80, 20);
 
-
-        trainData = filesInDirSplit[0];
-        testData = filesInDirSplit[1];
+        this.trainData = filesInDirSplit[0];
+        this.testData = filesInDirSplit[1];
         System.out.println("data split");
     }
 
-    public static DataSetIterator getTrainDataset() throws IOException {
+    /**
+     * Creating TrainingDataset from {@link MnistDataset#trainData} initialized in Constructor
+     * @return {@link DataSetIterator} TrainingDataSet
+     */
+    public DataSetIterator getTrainDataset() throws IOException {
 
-        ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
-        recordReader.initialize(trainData);
+        ImageRecordReader recordReader = new ImageRecordReader(this.height,this.width,this.channels,this.labelMaker);
+        recordReader.initialize(this.trainData);
         int outputNum = recordReader.numLabels();
-        trainingSetSize = outputNum;
+        this.trainingSetSize = outputNum;
         System.out.println("initialized Training set, "+outputNum+" Labels");
-        return new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
+        return new RecordReaderDataSetIterator(recordReader, this.batchSize, this.labelIndex, outputNum);
     }
 
-    public static DataSetIterator getTestDataset() throws IOException {
 
-        ImageRecordReader recordReader = new ImageRecordReader(height,width,channels,labelMaker);
+    /**
+     * Creating TrainingDataset from {@link MnistDataset#testData} initialized in Constructor
+     * @return {@link DataSetIterator} TrainingDataSet
+     */
+    public DataSetIterator getTestDataset() throws IOException {
+
+        ImageRecordReader recordReader = new ImageRecordReader(this.height,this.width,this.channels,this.labelMaker);
         recordReader.initialize(testData);
         int outputNum = recordReader.numLabels();
-        testSetSize = outputNum;
+        this.testSetSize = outputNum;
         System.out.println("initialized Test set, "+outputNum+" Labels");
-        return new RecordReaderDataSetIterator(recordReader, batchSize, labelIndex, outputNum);
+        return new RecordReaderDataSetIterator(recordReader, this.batchSize, this.labelIndex, outputNum);
     }
 
 
