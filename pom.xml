@@ -8,6 +8,7 @@
     <version>V1</version>
     <name>deeplearning4jCNN</name>
     <description>deeplearning4jCNN</description>
+
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -46,21 +47,6 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- CPU
-        <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
-            <version>${dl4j.version}</version>
-        </dependency>
-         -->
-
-        <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-11.2</artifactId>
-            <version>1.0.0-M2</version>
-        </dependency>
-
-
         <!-- https://stackoverflow.com/questions/63438329/errorjava-java-lang-exceptionininitializererror-com-sun-tools-javac-code-typet -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -69,25 +55,38 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- CPU
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native-platform</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+         -->
+
+        <!-- GPU -->
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-cuda-11.2</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <!---->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-api</artifactId>
-            <version>0.9.1</version>
+            <version>${dl4j.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
-            <version>0.9.1</version>
+            <version>${dl4j.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-nn</artifactId>
-            <version>0.9.1</version>
+            <version>${dl4j.version}</version>
         </dependency>
-
 
     </dependencies>
 
@@ -100,20 +99,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>mnist.Experiment1Application</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>

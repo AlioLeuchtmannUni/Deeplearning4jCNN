@@ -261,7 +261,7 @@ public class Deeplearning4jCnnApplication {
         logger.info("Start");
         Nd4j.getMemoryManager().setAutoGcWindow(5000);
 
-        MnistDataset mnistDataset = new MnistDataset("trainingSet/","./src/main/resources/",batchSize);
+        MnistDataset mnistDataset = new MnistDataset("trainingSet/","./data/",batchSize);
         mnistTrain = mnistDataset.getTrainDataset();
         mnistTest = mnistDataset.getTestDataset();
 
