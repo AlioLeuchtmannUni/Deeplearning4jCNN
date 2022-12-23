@@ -1,0 +1,16 @@
+services:
+  gpu:
+    image: cuda-java
+    command: nvidia-smi
+    entrypoint: ["bash","/code/src/docker/start.sh"]
+    volumes:
+      - type: bind
+        source: ../../
+        target: /code/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

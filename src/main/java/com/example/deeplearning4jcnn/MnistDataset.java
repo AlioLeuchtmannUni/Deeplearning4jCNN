@@ -36,16 +36,18 @@ public class MnistDataset {
      *     // 2. Extract Files
      *     // 3. put Folder trainingSet in Resources Folder
      *
+     *
      * Using
      * </pre>
      * @param batchSize BatchSize
+     * @param folderName Name of the Folder containing the Trainingset divided in Folders by label
+     * @param dataLocalPath Path to Folder containing the Data
      */
-    MnistDataset(int batchSize){
+    MnistDataset(String folderName, String dataLocalPath,int batchSize){
 
         this.batchSize = batchSize;
 
-        String dataLocalPath = "./src/main/resources/";
-        File parentDir = new File(dataLocalPath,"trainingSet/");
+        File parentDir = new File(dataLocalPath,folderName);
         //Images are of format given by allowedExtension -
         String[] allowedExtensions = BaseImageLoader.ALLOWED_FORMATS;
         long seed = 123;
