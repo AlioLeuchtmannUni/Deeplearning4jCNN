@@ -6,10 +6,10 @@ cd code
 
 echo 'installing dependencies'
 
-./mvnw clean install
+./mvnw clean install -X
 
 echo 'start programm'
 
-./mvnw spring-boot:run
+./mvnw spring-boot:run -X
 
 
