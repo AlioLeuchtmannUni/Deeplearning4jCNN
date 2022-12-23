@@ -34,7 +34,7 @@ public class MnistDataset {
      * Requirements for mnist Example:
      *     // 1. Download https://www.kaggle.com/datasets/scolianni/mnistasjpg
      *     // 2. Extract Files
-     *     // 3. put Folder trainingSet in Resources Folder
+     *     // 3. pass path of data folder to Constructor
      *
      *
      * Using
