@@ -61,7 +61,7 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- https://stackoverflow.com/questions/63438329/errorjava-java-lang-exceptionininitializererror-com-sun-tools-javac-code-typet -->
+        <!--error fix https://stackoverflow.com/questions/63438329/errorjava-java-lang-exceptionininitializererror-com-sun-tools-javac-code-typet -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -84,6 +84,7 @@
             <version>1.0.0-M2</version>
         </dependency>
         <!---->
+
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-api</artifactId>

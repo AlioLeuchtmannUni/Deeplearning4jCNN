@@ -1,6 +1,6 @@
 #FROM nvidia/cuda:12.0.0-runtime-ubuntu22.04
 FROM nvidia/cuda:11.2.0-cudnn8-runtime-ubuntu20.04
-# https://hub.docker.com/r/nvidia/cuda for more info
+# https://hub.docker.com/r/nvidia/cuda for more info on images
 
 # Install OpenJDK-18
 # --allow-unauthenticated --allow-insecure-repositories to solve cuda repo not signed
